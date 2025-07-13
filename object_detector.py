@@ -232,5 +232,38 @@ def detect_weapons(image_file):
     print(f"\n=== Filtered Weapons ===")
     for item in detected:
         print(f"- {item['weapon']} ({item['severity']}) conf: {item['confidence']:.2f}")
-    
+
+    # --- Enhancement: Post-process for gun-like objects ---
+    gun_keywords = ["gun", "pistol", "rifle", "firearm"]
+    gun_like_labels = ["baseball bat", "tennis racket"]
+    for score, label, box in zip(results["scores"], results["labels"], results["boxes"]):
+        label_name = model.config.id2label.get(label.item(), f"unknown_{label.item()}").lower()
+        confidence = float(score.item())
+        # Debug print for all detected labels
+        print(f"[DEBUG] Detected label: {label_name}, confidence: {confidence:.2f}")
+        if any(x in label_name for x in gun_keywords) or label_name in gun_like_labels:
+            # Only add if not already detected as a weapon
+            if not any(d['original_label'] == label_name for d in detected):
+                detected.append({
+                    "weapon": "gun",
+                    "severity": "SERIOUS-URGENT",
+                    "confidence": confidence,
+                    "bbox": [round(c, 2) for c in box.tolist()],
+                    "original_label": label_name
+                })
+
+    # --- Workaround: If no objects detected, check image description for gun/weapon keywords ---
+    import streamlit as st
+    if len(detected) == 0:
+        # Try to get the image description from Streamlit session state
+        image_description = st.session_state.get('image_description', '')
+        if any(x in image_description.lower() for x in gun_keywords):
+            detected.append({
+                "weapon": "gun (from description)",
+                "severity": "SERIOUS-URGENT",
+                "confidence": 1.0,
+                "bbox": [],
+                "original_label": "description"
+            })
+
     return detected

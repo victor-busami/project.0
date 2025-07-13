@@ -60,7 +60,7 @@ def analyze_threat_level(weapons, image_description=""):
         return "SERIOUS-URGENT"
     elif violence_score > 1 or any(w.get('severity') == 'SERIOUS' for w in weapons):
         return "SERIOUS"
-    elif violence_score > 0.5 or any(w.get('severity') == 'MEDIUM' for w in weapons):
+    elif any(w.get('severity') == 'MEDIUM' for w in weapons):
         return "MEDIUM"
     elif sentiment_label == 'NEGATIVE' and sentiment_score > 0.7:
         return "MEDIUM"

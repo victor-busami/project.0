@@ -1,0 +1,1 @@
+{"timestamp": "2025-07-13T16:32:24.558041", "weapons_detected": [], "threat_level": "SERIOUS", "object_detection_threat": "SERIOUS", "context_threat": "MEDIUM", "alert_color": "orange", "image_description": "   There is a gun in this image.\n", "analysis_notes": ["Image description provided for context analysis", "Threat level elevated to SERIOUS"]}
